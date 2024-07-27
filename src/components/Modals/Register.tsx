@@ -11,6 +11,7 @@ import useCloseModal from "@/customHooks/useCloseModal";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebase";
 import { useRouter } from "next/router";
+import { useToast } from "../ui/use-toast";
 
 type RegisterProps = {};
 
@@ -21,6 +22,7 @@ const Register: React.FC<RegisterProps> = () => {
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
   const closeModal = useCloseModal();
+  const { toast } = useToast();
 
   const handleClick = (type: "login" | "register" | "forgotPassword") => {
     setAuthModalState((prev) => ({ ...prev, type: type }));
@@ -39,6 +41,7 @@ const Register: React.FC<RegisterProps> = () => {
       );
       if (!newUser) return;
       router.push("/");
+      closeModal();
     } catch (error: any) {
       console.log(error.message);
     }
@@ -46,7 +49,11 @@ const Register: React.FC<RegisterProps> = () => {
 
   useEffect(() => {
     if (error) {
-      alert(error.message);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+      });
     }
   }, [error]);
 

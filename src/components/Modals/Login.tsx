@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
@@ -11,6 +13,7 @@ import useCloseModal from "@/customHooks/useCloseModal";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "@/firebase/firebase";
 import { useRouter } from "next/router";
+import { useToast } from "../ui/use-toast";
 
 type LoginProps = {};
 
@@ -21,6 +24,7 @@ const Login: React.FC<LoginProps> = () => {
     useSignInWithEmailAndPassword(auth);
   const router = useRouter();
   const closeModal = useCloseModal();
+  const { toast } = useToast();
 
   const handleClick = (type: "login" | "register" | "forgotPassword") => {
     setAuthModalState((prev) => ({ ...prev, type: type }));
@@ -39,6 +43,7 @@ const Login: React.FC<LoginProps> = () => {
       );
       if (!newUser) return;
       router.push("/");
+      closeModal();
     } catch (error: any) {
       console.log(error.message);
     }
@@ -47,7 +52,12 @@ const Login: React.FC<LoginProps> = () => {
 
   useEffect(() => {
     if (error) {
-      alert(error.message);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+        duration: 5000,
+      });
     }
   }, [error]);
 
